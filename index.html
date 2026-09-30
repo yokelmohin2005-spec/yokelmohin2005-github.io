@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1E90FF">
+<title>От`ремонтируй — ремонт телефонов и ноутбуков</title>
+<meta name="description" content="Ремонт телефонов и ноутбуков: диагностика, замена экранов и аккумуляторов, чистка, установка Windows.">
+<script>document.documentElement.classList.add('js')</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* Шрифт Schiffbauer лежит в папке fonts рядом с index.html */
+  @font-face{font-family:"Schiffbauer";src:url("fonts/Schiffbauer-Regular.otf") format("opentype");font-weight:400;font-style:normal;font-display:swap}
+
+  /* ===== Палитра: меняется здесь ===== */
+  :root{
+    --bg:#F3F7FC;        /* основной фон: холодный светлый */
+    --bg2:#E6EFFA;       /* фон чередующихся секций */
+    --card:#fff;
+    --ink:#0A1628;       /* текст */
+    --muted:#4F5F76;
+    --blue:#1E90FF;      /* главный синий: кнопки, акценты */
+    --blue-hover:#1679e0;
+    --blue-deep:#0B6BD1; /* синий для текста и тёмных блоков */
+    --amber:#FFA726;     /* тёплый акцент, используем редко */
+    --green:#1FA971;     /* «готово» */
+    --line:#D3DEEB;
+    --ease:cubic-bezier(.23,1,.32,1);
+    --display:"Schiffbauer","Onest",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0}
+  html{scroll-behavior:smooth}
+  body{font-family:Onest,system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;font-size:17px;padding-bottom:84px}
+  a{color:inherit}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+  :focus-visible{outline:3px solid var(--blue-deep);outline-offset:3px}
+  section{padding:60px 0;scroll-margin-top:64px}
+  h1,h2,h3{font-family:var(--display);font-weight:400}
+  h2{font-size:clamp(28px,6.5vw,42px);line-height:1.12;margin-bottom:24px}
+
+  /* ===== Нажатие: кнопки и плитки слегка «отдаляются» ===== */
+  .btn,.tab,a.tile{transition:transform 160ms var(--ease),background-color 150ms ease,border-color 150ms ease,color 150ms ease;-webkit-tap-highlight-color:transparent}
+  .btn:active,.tab:active,a.tile:active{transform:scale(.96)}
+
+  /* ===== Шапка ===== */
+  header{position:sticky;top:0;z-index:10;background:rgba(243,247,252,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  header .wrap{display:flex;justify-content:space-between;align-items:center;height:64px}
+  .logo{font-family:var(--display);font-size:22px;text-decoration:none}
+  .tel{display:none;font-weight:600;text-decoration:none}
+
+  /* ===== Кнопки ===== */
+  .btn{display:inline-block;padding:15px 28px;border-radius:999px;font-family:var(--display);font-size:18px;text-decoration:none;text-align:center;border:2px solid var(--blue-deep);color:var(--blue-deep);background:transparent;cursor:pointer}
+  .btn.primary{background:var(--blue);border-color:var(--blue);color:#000}
+
+  /* ===== Первый экран ===== */
+  .hero{padding:32px 0 28px;overflow:hidden}
+  .hero .wrap{display:grid;gap:12px}
+  h1{font-size:clamp(36px,9.4vw,68px);line-height:1.05}
+  .lead{margin-top:18px;max-width:30em;color:var(--muted);font-size:18px}
+  .actions{margin-top:26px;display:flex;flex-wrap:wrap;gap:12px}
+  .actions .btn{flex:1 1 200px}
+
+  /* Вращающийся телефон (CSS) */
+  .stage{position:relative;display:flex;justify-content:center;padding:30px 0 46px}
+  .stage::before{content:"";position:absolute;top:50%;left:50%;width:min(86vw,400px);aspect-ratio:1;transform:translate(-50%,-52%);border-radius:50%;background:var(--bg2)}
+  .persp{position:relative;perspective:1200px}
+  .phone{--w:206px;--h:420px;position:relative;width:var(--w);height:var(--h);transform-style:preserve-3d;animation:spin 24s linear infinite;will-change:transform}
+  .phone > *{position:absolute;inset:0;border-radius:34px}
+  .layer{background:#1a222c;transform:translateZ(var(--z))}
+  .front{transform:translateZ(7px);background:#000;padding:8px;backface-visibility:hidden}
+  .back{transform:rotateY(180deg) translateZ(7px);background:linear-gradient(155deg,#242f3c 0%,#161d26 45%,#0d1218 100%);backface-visibility:hidden;overflow:hidden}
+  .back::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 34%,rgba(255,255,255,.08) 47%,transparent 60%)}
+  .screen{width:100%;height:100%;border-radius:27px;background:var(--blue);color:#fff;padding:30px 14px 14px;display:flex;flex-direction:column;overflow:hidden;position:relative}
+  .notch{position:absolute;top:10px;left:50%;width:62px;height:17px;margin-left:-31px;background:#000;border-radius:99px}
+  .screen small{font-size:11px;opacity:.9;display:block}
+  .screen strong{font-family:var(--display);font-weight:400;font-size:21px;line-height:1.1}
+  .person{flex:1;min-height:0;width:100%;margin-top:4px}
+  .task{background:#fff;color:var(--ink);border-radius:14px;padding:10px 12px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
+  .task svg{width:20px;height:20px;padding:3px;border-radius:50%;background:var(--green);fill:none;stroke:#fff;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}
+  .cam{position:absolute;top:4.5%;left:7%;width:41%;aspect-ratio:1;border-radius:26%;background:#1c2530;box-shadow:inset 0 0 0 1px rgba(255,255,255,.09),0 3px 8px rgba(0,0,0,.45)}
+  .lens{position:absolute;width:41%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 30%,#3b4c66 0,#0d1626 36%,#02050a 72%);box-shadow:0 0 0 3px #0a0f15,0 0 0 4px rgba(255,255,255,.15)}
+  .l1{top:11%;left:11%}.l2{bottom:11%;right:11%}
+  .flash{position:absolute;top:15%;right:15%;width:15%;aspect-ratio:1;border-radius:50%;background:#e8e2cf;box-shadow:0 0 0 2px #0a0f15}
+  .mic{position:absolute;bottom:17%;left:17%;width:7%;aspect-ratio:1;border-radius:50%;background:#05080c}
+  .mark{position:absolute;top:52%;left:0;width:100%;text-align:center;font-family:var(--display);font-size:17px;color:rgba(255,255,255,.2)}
+  .shadow{position:absolute;bottom:14px;left:50%;width:160px;height:22px;margin-left:-80px;border-radius:50%;background:rgba(10,22,40,.18);filter:blur(10px)}
+@keyframes spin{
+    0%,4%{transform:rotateX(-6deg) rotateY(0);animation-timing-function:cubic-bezier(.37,0,.63,1)}
+    27%{transform:rotateX(-6deg) rotateY(180deg);animation-timing-function:cubic-bezier(.37,0,.63,1)}
+    50%,54%{transform:rotateX(-6deg) rotateY(0);animation-timing-function:cubic-bezier(.37,0,.63,1)}
+    77%{transform:rotateX(-6deg) rotateY(-180deg);animation-timing-function:cubic-bezier(.37,0,.63,1)}
+    100%{transform:rotateX(-6deg) rotateY(0)}
+  }
+
+  /* ===== Услуги ===== */
+  .svc{display:grid;gap:8px}
+  .row{display:flex;justify-content:space-between;gap:16px;padding:18px 0;border-bottom:1px solid var(--line)}
+  .rows .row:first-child{border-top:1px solid var(--line)}
+  .row span:last-child{font-family:var(--display);font-size:20px;white-space:nowrap;color:var(--blue-deep)}
+  .note{color:var(--muted);font-size:15px}
+
+  /* ===== Как мы работаем: нажимаемые шаги + макеты интерфейса ===== */
+  .process{background:var(--bg2)}
+  .sub{color:var(--muted);margin:-12px 0 24px}
+  .flow{display:grid;gap:16px}
+  .tabs{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x proximity;padding:4px 2px 8px;margin:0 -22px;padding-inline:22px}
+  .tab{flex:0 0 auto;scroll-snap-align:start;display:flex;align-items:center;gap:10px;text-align:left;font:inherit;color:inherit;background:transparent;border:2px solid transparent;border-radius:18px;padding:10px 16px 10px 10px;cursor:pointer}
+  .tab .n{flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-family:var(--display);font-size:18px}
+  .tab b{font-weight:600;font-size:16px;line-height:1.25}
+  .tab small{display:none;color:var(--muted);font-size:15px}
+  .tab[aria-selected="true"]{background:var(--card);border-color:var(--blue)}
+  .tab[aria-selected="true"] .n{background:var(--blue);color:#000}
+  .panel{display:none;border-radius:26px;padding:20px;min-height:350px;flex-direction:column;justify-content:space-between;gap:16px}
+  .panel.on{display:flex;animation:swap 180ms var(--ease)}
+  @keyframes swap{from{opacity:0;transform:translateY(8px)}}
+  .p1{background:#CFE4FF}.p2{background:#FFE6BF}.p3{background:var(--blue-deep);color:#fff}.p4{background:#CDEEDD}
+  .cap{font-size:17px;max-width:26em}
+  .mock{background:var(--card);color:var(--ink);border-radius:20px;padding:16px;box-shadow:0 8px 24px rgba(10,22,40,.12);max-width:340px;width:100%;align-self:center;font-size:15px}
+  .mock h4{font-family:var(--display);font-weight:400;font-size:20px;margin-bottom:10px}
+  .msg{max-width:84%;padding:9px 13px;border-radius:16px;margin-bottom:8px;line-height:1.35}
+  .msg.in{background:var(--bg);border-bottom-left-radius:5px}
+  .msg.out{background:var(--blue);color:#000;margin-left:auto;border-bottom-right-radius:5px}
+  .checks{list-style:none;padding:0}
+  .checks li{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+  .checks span{color:var(--green);font-weight:600}
+  .checks .bad{color:#C2410C}
+  .quote{display:flex;justify-content:space-between;align-items:center;margin:12px 0}
+  .quote b{font-family:var(--display);font-weight:400;font-size:30px}
+  .fake{display:block;text-align:center;background:var(--blue);color:#000;border-radius:999px;padding:10px;font-family:var(--display);font-size:17px}
+  .bar{height:10px;border-radius:9px;background:var(--bg2);overflow:hidden;margin:4px 0 14px}
+  .bar i{display:block;height:100%;background:var(--blue);border-radius:9px}
+  .stages{list-style:none;padding:0}
+  .stages li{padding:7px 0 7px 30px;position:relative;color:var(--muted)}
+  .stages li::before{content:"";position:absolute;left:0;top:10px;width:18px;height:18px;border-radius:50%;border:2px solid var(--line)}
+  .stages li.done{color:var(--ink)}
+  .stages li.done::before{background:var(--green);border-color:var(--green)}
+  .seal{width:54px;height:54px;border-radius:50%;background:var(--green);display:grid;place-items:center;margin-bottom:10px}
+  .seal svg{width:28px;height:28px;fill:none;stroke:#fff;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}
+  .receipt{display:flex;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)}
+
+  /* ===== Отзывы ===== */
+  .reviews{background:var(--blue-deep);color:#fff}
+  .reviews .rating{margin:-12px 0 24px}
+  .quotes{display:grid;gap:14px;margin-bottom:26px}
+  .q{background:rgba(255,255,255,.12);border-radius:20px;padding:20px}
+  .q p{font-size:18px}
+  .q footer{margin-top:8px;font-size:15px}
+  .reviews .btn{border-color:#fff;color:#fff}
+  .reviews :focus-visible{outline-color:#fff}
+
+  /* ===== Контакты и карта ===== */
+  .cgrid{display:grid;gap:14px}
+  .tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-content:start}
+  .tile{display:flex;flex-direction:column;gap:2px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;text-decoration:none}
+  .tile small{color:var(--muted);font-size:14px}
+  .tile b{font-weight:600;overflow-wrap:anywhere}
+  a.tile b{color:var(--blue-deep)}
+  .map{position:relative;min-height:280px;border-radius:22px;overflow:hidden;background-color:var(--bg2);
+    background-image:linear-gradient(var(--line) 2px,transparent 2px),linear-gradient(90deg,var(--line) 2px,transparent 2px);background-size:64px 64px}
+  .map::before{content:"";position:absolute;left:50%;top:42%;width:26px;height:26px;margin:-26px 0 0 -13px;background:var(--blue-deep);border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 0 0 6px rgba(11,107,209,.18)}
+  .map .btn{position:absolute;bottom:16px;left:16px;right:16px;background:var(--card)}
+  .map iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  /* Настоящая карта: вставь <iframe> из 2ГИС внутрь .map, кнопку и метку (.map::before) убери */
+  .foot{padding:26px 0;border-top:1px solid var(--line);color:var(--muted);font-size:15px}
+
+  /* ===== Панель внизу на телефоне ===== */
+  .callbar{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;gap:10px;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:rgba(243,247,252,.96);backdrop-filter:blur(8px);border-top:1px solid var(--line)}
+  .callbar .btn{flex:1;padding:12px 10px}
+
+  /* ===== Появление при прокрутке: 180 мс, только opacity и transform ===== */
+  .js .reveal{opacity:0;transform:translateY(12px);transition:opacity 180ms var(--ease),transform 180ms var(--ease)}
+  .js .reveal.in{opacity:1;transform:none}
+  @media (hover:hover) and (pointer:fine){
+    .btn.primary:hover{background:var(--blue-hover);border-color:var(--blue-hover)}
+    .btn:not(.primary):hover{background:var(--blue-deep);color:#fff}
+    .reviews .btn:hover{background:#fff;color:var(--blue-deep)}
+    .map .btn:hover{background:var(--blue-deep);color:#fff}
+    .tab[aria-selected="false"]:hover{background:rgba(255,255,255,.6)}
+    a.tile:hover{border-color:var(--blue)}
+  }
+
+  /* ===== Компьютер ===== */
+  @media (min-width:860px){
+    body{padding-bottom:0}
+    .callbar{display:none}
+    .tel{display:block}
+    section{padding:92px 0}
+    .hero{padding:72px 0 88px}
+    .hero .wrap{grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+    .actions .btn{flex:0 0 auto}
+    .phone{--w:250px;--h:510px}
+    .svc{grid-template-columns:.85fr 1.15fr;gap:64px}
+    .flow{grid-template-columns:.85fr 1.15fr;gap:32px;align-items:start}
+    .tabs{flex-direction:column;overflow:visible;margin:0;padding:0}
+    .tab{padding:14px 18px 14px 14px;align-items:flex-start}
+    .tab small{display:block}
+    .panel{min-height:460px;padding:28px}
+    .quotes{grid-template-columns:repeat(3,1fr)}
+    .cgrid{grid-template-columns:1fr 1.2fr}
+    .map{min-height:360px}
+    .map .btn{left:auto;right:16px}
+  }
+
+  /* «Уменьшить анимацию» в системе: без движения, остаётся мягкое появление */
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    .phone{animation:none;transform:rotateX(-6deg) rotateY(-25deg)}
+    .js .reveal{transform:none;transition:opacity 150ms ease}
+    .panel.on{animation:none}
+    .btn:active,.tab:active,a.tile:active{transform:none}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="logo" href="#">От`ремонтируй</a>
+    <!-- TODO: настоящий номер -->
+    <a class="tel" href="tel:+70000000000">+7 (000) 000-00-00</a>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <div class="wrap">
+      <div>
+        <h1>Ремонт телефонов и ноутбуков без лишних вопросов</h1>
+        <p class="lead">Бесплатная диагностика, цена называется до начала работы. Многие поломки устраняем в день обращения.</p>
+        <div class="actions">
+          <a class="btn primary" href="tel:+70000000000">Позвонить</a>
+          <!-- TODO: ссылка на Telegram (t.me/имя) -->
+          <a class="btn" href="https://t.me/username">Написать в Telegram</a>
+        </div>
+      </div>
+
+      <div class="stage" aria-hidden="true">
+        <div class="persp">
+          <div class="phone">
+            <div class="layer" style="--z:-6px"></div><div class="layer" style="--z:-4px"></div><div class="layer" style="--z:-2px"></div>
+            <div class="layer" style="--z:0px"></div><div class="layer" style="--z:2px"></div><div class="layer" style="--z:4px"></div>
+            <div class="back"><div class="cam"><i class="lens l1"></i><i class="lens l2"></i><i class="flash"></i><i class="mic"></i></div><div class="mark">От`ремонтируй</div></div>
+            <div class="front">
+              <div class="screen">
+                <div class="notch"></div>
+                <small>Новый заказ</small>
+                <strong>Замена экрана</strong>
+                <!-- Человек в мультяшном стиле делает заказ -->
+                <svg class="person" viewBox="0 0 160 170" preserveAspectRatio="xMidYMax meet">
+                  <circle cx="80" cy="98" r="62" fill="#fff" opacity=".18"/>
+                  <path d="M22 170c0-34 26-54 58-54s58 20 58 54z" fill="#FFA726"/>
+                  <path d="M62 121q18 14 36 0v9q-18 12-36 0z" fill="#E08A10"/>
+                  <rect x="70" y="100" width="20" height="22" rx="8" fill="#E9A37A"/>
+                  <circle cx="80" cy="76" r="30" fill="#F6C3A0"/>
+                  <path d="M49 74c-3-24 14-40 32-38 19 2 32 16 29 38-9-11-21-16-33-16s-20 5-28 16z" fill="#2B2118"/>
+                  <circle cx="69" cy="80" r="3.6" fill="#0A1628"/><circle cx="91" cy="80" r="3.6" fill="#0A1628"/>
+                  <path d="M70 91q10 9 20 0" fill="none" stroke="#0A1628" stroke-width="3" stroke-linecap="round"/>
+                  <circle cx="61" cy="89" r="4.5" fill="#F29A8A" opacity=".6"/><circle cx="99" cy="89" r="4.5" fill="#F29A8A" opacity=".6"/>
+                  <path d="M128 160c2-24-2-38-12-46" fill="none" stroke="#FFA726" stroke-width="16" stroke-linecap="round"/>
+                  <rect x="104" y="84" width="26" height="42" rx="6" fill="#0A1628" transform="rotate(12 117 105)"/>
+                  <rect x="107" y="88" width="20" height="32" rx="4" fill="#1E90FF" transform="rotate(12 117 105)"/>
+                  <circle cx="115" cy="128" r="7" fill="#F6C3A0"/>
+                  <rect x="100" y="8" width="52" height="30" rx="12" fill="#fff"/><path d="M112 37l-5 10 13-10z" fill="#fff"/>
+                  <path d="M115 23l7 7 12-13" fill="none" stroke="#1FA971" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <div class="task"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>Заказ принят</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="shadow"></div>
+      </div>
+    </div>
+  </div>
+
+  <section id="services">
+    <div class="wrap reveal svc">
+      <div>
+        <h2>Что ремонтируем и сколько это стоит</h2>
+        <p class="note">Точную цену назовём после диагностики, до начала работы.</p>
+      </div>
+      <!-- TODO: реальные услуги и цены -->
+      <div class="rows">
+        <div class="row"><span>Замена экрана телефона</span><span>от 0 ₽</span></div>
+        <div class="row"><span>Замена аккумулятора</span><span>от 0 ₽</span></div>
+        <div class="row"><span>Замена разъёма зарядки</span><span>от 0 ₽</span></div>
+        <div class="row"><span>Чистка ноутбука и замена термопасты</span><span>от 0 ₽</span></div>
+        <div class="row"><span>Установка Windows и программ</span><span>от 0 ₽</span></div>
+        <div class="row"><span>Ремонт после воды</span><span>по диагностике</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="process" class="process">
+    <div class="wrap reveal">
+      <h2>Как мы работаем</h2>
+      <p class="sub">Нажимайте на шаги и смотрите, как это выглядит для вас.</p>
+      <!-- TODO: подогнать тексты под реальный процесс -->
+      <div class="flow">
+        <div class="tabs" role="tablist" aria-label="Шаги работы">
+          <button class="tab" role="tab" id="t1" aria-controls="p1" aria-selected="true"><span class="n">1</span><span><b>Вы звоните или пишете</b><small>Опишите, что случилось</small></span></button>
+          <button class="tab" role="tab" id="t2" aria-controls="p2" aria-selected="false" tabindex="-1"><span class="n">2</span><span><b>Диагностика и цена</b><small>Называем стоимость до работы</small></span></button>
+          <button class="tab" role="tab" id="t3" aria-controls="p3" aria-selected="false" tabindex="-1"><span class="n">3</span><span><b>Ремонт</b><small>Чиним после вашего согласия</small></span></button>
+          <button class="tab" role="tab" id="t4" aria-controls="p4" aria-selected="false" tabindex="-1"><span class="n">4</span><span><b>Выдача с гарантией</b><small>Проверяем вместе с вами</small></span></button>
+        </div>
+        <div>
+          <div class="panel p1 on" id="p1" role="tabpanel" aria-labelledby="t1">
+            <div class="mock" aria-hidden="true"><div class="msg in">Экран разбит. Можно починить сегодня?</div><div class="msg out">Да, приносите. Цену назовём за 10 минут.</div><div class="msg in">Отлично, выезжаю</div></div>
+            <p class="cap">Расскажите, что случилось с устройством. Подскажем по телефону, что можно сделать.</p>
+          </div>
+          <div class="panel p2" id="p2" role="tabpanel" aria-labelledby="t2">
+            <div class="mock" aria-hidden="true"><h4>Диагностика</h4><ul class="checks"><li>Экран<span class="bad">нужна замена</span></li><li>Аккумулятор<span>в норме</span></li><li>Плата<span>в норме</span></li></ul><div class="quote"><small>Стоимость</small><b>0 ₽</b></div><span class="fake">Согласен</span></div>
+            <p class="cap">Находим причину и называем точную цену и срок до начала работы.</p>
+          </div>
+          <div class="panel p3" id="p3" role="tabpanel" aria-labelledby="t3">
+            <div class="mock" aria-hidden="true"><h4>Ремонт идёт</h4><div class="bar"><i style="width:68%"></i></div><ul class="stages"><li class="done">Разборка</li><li class="done">Замена детали</li><li>Сборка и проверка</li></ul></div>
+            <p class="cap">Чиним после вашего согласия. Простые случаи делаем в тот же день.</p>
+          </div>
+          <div class="panel p4" id="p4" role="tabpanel" aria-labelledby="t4">
+            <div class="mock" aria-hidden="true"><div class="seal"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></div><h4>Ремонт завершён</h4><p>Гарантия: 0 месяцев</p><div class="receipt"><span>Замена экрана</span><span>0 ₽</span></div></div>
+            <p class="cap">Проверяем устройство вместе с вами и записываем гарантию в чек.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="reviews" class="reviews">
+    <div class="wrap reveal">
+      <h2>Что говорят клиенты</h2>
+      <!-- TODO: рейтинг и настоящие отзывы из 2ГИС -->
+      <p class="rating">Рейтинг в 2ГИС: 0,0 из 5</p>
+      <div class="quotes">
+        <blockquote class="q"><p>Здесь будет текст отзыва клиента о ремонте телефона.</p><footer>Имя клиента</footer></blockquote>
+        <blockquote class="q"><p>Здесь будет текст второго отзыва, про ноутбук или сроки.</p><footer>Имя клиента</footer></blockquote>
+        <blockquote class="q"><p>Здесь будет текст третьего отзыва.</p><footer>Имя клиента</footer></blockquote>
+      </div>
+      <!-- TODO: ссылка на карточку в 2ГИС -->
+      <a class="btn" href="https://2gis.kz/">Все отзывы в 2ГИС</a>
+    </div>
+  </section>
+
+  <section id="contacts">
+    <div class="wrap reveal">
+      <h2>Как нас найти</h2>
+      <!-- TODO: реальные данные -->
+      <div class="cgrid">
+        <div class="tiles">
+          <div class="tile"><small>Адрес</small><b>Город, улица, дом, офис</b></div>
+          <div class="tile"><small>Часы работы</small><b>Пн–Сб, 10:00–19:00</b></div>
+          <a class="tile" href="tel:+70000000000"><small>Телефон</small><b>+7 (000) 000-00-00</b></a>
+          <a class="tile" href="https://t.me/username"><small>Telegram</small><b>@username</b></a>
+        </div>
+        <!-- TODO: заменить заглушку настоящей картой (см. комментарий в CSS у .map) -->
+        <div class="map"><a class="btn" href="https://2gis.kz/">Открыть в 2ГИС</a></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="foot"><div class="wrap">© 2026 От`ремонтируй</div></div>
+
+<div class="callbar">
+  <a class="btn primary" href="tel:+70000000000">Позвонить</a>
+  <a class="btn" href="https://t.me/username">Telegram</a>
+</div>
+
+<script>
+(function(){
+  var d=document,els=d.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(l){l.forEach(function(x){if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target)}})},{threshold:.1});
+    els.forEach(function(e){io.observe(e)});
+    // телефон крутится только пока виден первый экран
+    var ph=d.querySelector('.phone'),h=d.querySelector('.hero');
+    new IntersectionObserver(function(l){ph.style.animationPlayState=l[0].isIntersecting?'running':'paused'}).observe(h);
+  }else{els.forEach(function(e){e.classList.add('in')})}
+  // шаги «Как мы работаем»
+  var tabs=[].slice.call(d.querySelectorAll('.tab')),panels=[].slice.call(d.querySelectorAll('.panel'));
+  function go(i,f){tabs.forEach(function(t,k){var on=k===i;t.setAttribute('aria-selected',on);t.tabIndex=on?0:-1;panels[k].classList.toggle('on',on)});if(f)tabs[i].focus()}
+  tabs.forEach(function(t,i){
+    t.addEventListener('click',function(){go(i)});
+    t.addEventListener('keydown',function(e){var k={ArrowRight:1,ArrowDown:1,ArrowLeft:-1,ArrowUp:-1}[e.key];if(k){e.preventDefault();go((i+k+tabs.length)%tabs.length,true)}});
+  });
+})();
+</script>
+</body>
+</html>
