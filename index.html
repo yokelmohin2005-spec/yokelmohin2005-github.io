@@ -9,10 +9,11 @@
 <script>document.documentElement.classList.add('js')</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  /* Шрифт Schiffbauer лежит в папке fonts рядом с index.html */
-  @font-face{font-family:"Schiffbauer";src:url("fonts/Schiffbauer-Regular.otf") format("opentype");font-weight:400;font-style:normal;font-display:swap}
+  /* Product Sans лежит в папке fonts рядом с index.html (Regular 400 и Bold 700) */
+  @font-face{font-family:"Product Sans";src:url("fonts/ProductSans-Regular.woff2") format("woff2"),url("fonts/ProductSans-Regular.ttf") format("truetype"),url("fonts/ProductSans-Regular.otf") format("opentype");font-weight:400;font-style:normal;font-display:swap}
+  @font-face{font-family:"Product Sans";src:url("fonts/ProductSans-Bold.woff2") format("woff2"),url("fonts/ProductSans-Bold.ttf") format("truetype"),url("fonts/ProductSans-Bold.otf") format("opentype");font-weight:700;font-style:normal;font-display:swap}
 
   /* ===== Палитра: меняется здесь ===== */
   :root{
@@ -28,16 +29,17 @@
     --green:#1FA971;     /* «готово» */
     --line:#D3DEEB;
     --ease:cubic-bezier(.23,1,.32,1);
-    --display:"Schiffbauer","Onest",system-ui,sans-serif;
+    --font:"Product Sans","Onest",system-ui,sans-serif; /* Onest подхватывает буквы, которых нет в Product Sans */
+    --display:var(--font);
   }
   *{box-sizing:border-box;margin:0}
   html{scroll-behavior:smooth}
-  body{font-family:Onest,system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;font-size:17px;padding-bottom:84px}
+  body{font-family:var(--font);background:var(--bg);color:var(--ink);line-height:1.6;font-size:17px;padding-bottom:84px}
   a{color:inherit}
   .wrap{max-width:1120px;margin:0 auto;padding:0 22px}
   :focus-visible{outline:3px solid var(--blue-deep);outline-offset:3px}
   section{padding:60px 0;scroll-margin-top:64px}
-  h1,h2,h3{font-family:var(--display);font-weight:400}
+  h1,h2,h3{font-family:var(--display);font-weight:700}
   h2{font-size:clamp(28px,6.5vw,42px);line-height:1.12;margin-bottom:24px}
 
   /* ===== Нажатие: кнопки и плитки слегка «отдаляются» ===== */
@@ -48,7 +50,7 @@
   header{position:sticky;top:0;z-index:10;background:rgba(243,247,252,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
   header .wrap{display:flex;justify-content:space-between;align-items:center;height:64px}
   .logo{font-family:var(--display);font-size:22px;text-decoration:none}
-  .tel{display:none;font-weight:600;text-decoration:none}
+  .tel{display:none;font-weight:700;text-decoration:none}
 
   /* ===== Кнопки ===== */
   .btn{display:inline-block;padding:15px 28px;border-radius:999px;font-family:var(--display);font-size:18px;text-decoration:none;text-align:center;border:2px solid var(--blue-deep);color:var(--blue-deep);background:transparent;cursor:pointer}
@@ -62,37 +64,21 @@
   .actions{margin-top:26px;display:flex;flex-wrap:wrap;gap:12px}
   .actions .btn{flex:1 1 200px}
 
-  /* Вращающийся телефон (CSS) */
-  .stage{position:relative;display:flex;justify-content:center;padding:30px 0 46px}
-  .stage::before{content:"";position:absolute;top:50%;left:50%;width:min(86vw,400px);aspect-ratio:1;transform:translate(-50%,-52%);border-radius:50%;background:var(--bg2)}
-  .persp{position:relative;perspective:1200px}
-  .phone{--w:206px;--h:420px;position:relative;width:var(--w);height:var(--h);transform-style:preserve-3d;animation:spin 24s linear infinite;will-change:transform}
-  .phone > *{position:absolute;inset:0;border-radius:34px}
-  .layer{background:#1a222c;transform:translateZ(var(--z))}
-  .front{transform:translateZ(7px);background:#000;padding:8px;backface-visibility:hidden}
-  .back{transform:rotateY(180deg) translateZ(7px);background:linear-gradient(155deg,#242f3c 0%,#161d26 45%,#0d1218 100%);backface-visibility:hidden;overflow:hidden}
-  .back::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 34%,rgba(255,255,255,.08) 47%,transparent 60%)}
+  /* Телефон: 3D на three.js; если WebGL недоступен, показываем плоский запасной вариант */
+  .stage{position:relative;display:flex;justify-content:center;align-items:center;height:min(116vw,520px)}
+  .stage::before{content:"";position:absolute;top:50%;left:50%;width:min(86vw,400px);aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:var(--bg2)}
+  .gl{position:relative;display:block;width:100%;height:100%;touch-action:pan-y}
+  .flat{display:none;position:relative;width:206px;height:420px;padding:8px;border-radius:34px;background:#06090d;box-shadow:0 0 0 3px #2a3340,0 24px 40px rgba(10,22,40,.25)}
+  .nogl .gl{display:none}
+  .nogl .flat{display:block}
+  .shadow{position:absolute;bottom:6px;left:50%;width:170px;height:20px;margin-left:-85px;border-radius:50%;background:rgba(10,22,40,.2);filter:blur(10px)}
   .screen{width:100%;height:100%;border-radius:27px;background:var(--blue);color:#fff;padding:30px 14px 14px;display:flex;flex-direction:column;overflow:hidden;position:relative}
   .notch{position:absolute;top:10px;left:50%;width:62px;height:17px;margin-left:-31px;background:#000;border-radius:99px}
   .screen small{font-size:11px;opacity:.9;display:block}
-  .screen strong{font-family:var(--display);font-weight:400;font-size:21px;line-height:1.1}
+  .screen strong{font-family:var(--display);font-weight:700;font-size:21px;line-height:1.1}
   .person{flex:1;min-height:0;width:100%;margin-top:4px}
-  .task{background:#fff;color:var(--ink);border-radius:14px;padding:10px 12px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px}
+  .task{background:#fff;color:var(--ink);border-radius:14px;padding:10px 12px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px}
   .task svg{width:20px;height:20px;padding:3px;border-radius:50%;background:var(--green);fill:none;stroke:#fff;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}
-  .cam{position:absolute;top:4.5%;left:7%;width:41%;aspect-ratio:1;border-radius:26%;background:#1c2530;box-shadow:inset 0 0 0 1px rgba(255,255,255,.09),0 3px 8px rgba(0,0,0,.45)}
-  .lens{position:absolute;width:41%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 30%,#3b4c66 0,#0d1626 36%,#02050a 72%);box-shadow:0 0 0 3px #0a0f15,0 0 0 4px rgba(255,255,255,.15)}
-  .l1{top:11%;left:11%}.l2{bottom:11%;right:11%}
-  .flash{position:absolute;top:15%;right:15%;width:15%;aspect-ratio:1;border-radius:50%;background:#e8e2cf;box-shadow:0 0 0 2px #0a0f15}
-  .mic{position:absolute;bottom:17%;left:17%;width:7%;aspect-ratio:1;border-radius:50%;background:#05080c}
-  .mark{position:absolute;top:52%;left:0;width:100%;text-align:center;font-family:var(--display);font-size:17px;color:rgba(255,255,255,.2)}
-  .shadow{position:absolute;bottom:14px;left:50%;width:160px;height:22px;margin-left:-80px;border-radius:50%;background:rgba(10,22,40,.18);filter:blur(10px)}
-@keyframes spin{
-    0%,4%{transform:rotateX(-6deg) rotateY(0);animation-timing-function:cubic-bezier(.37,0,.63,1)}
-    27%{transform:rotateX(-6deg) rotateY(180deg);animation-timing-function:cubic-bezier(.37,0,.63,1)}
-    50%,54%{transform:rotateX(-6deg) rotateY(0);animation-timing-function:cubic-bezier(.37,0,.63,1)}
-    77%{transform:rotateX(-6deg) rotateY(-180deg);animation-timing-function:cubic-bezier(.37,0,.63,1)}
-    100%{transform:rotateX(-6deg) rotateY(0)}
-  }
 
   /* ===== Услуги ===== */
   .svc{display:grid;gap:8px}
@@ -105,29 +91,35 @@
   .process{background:var(--bg2)}
   .sub{color:var(--muted);margin:-12px 0 24px}
   .flow{display:grid;gap:16px}
-  .tabs{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x proximity;padding:4px 2px 8px;margin:0 -22px;padding-inline:22px}
-  .tab{flex:0 0 auto;scroll-snap-align:start;display:flex;align-items:center;gap:10px;text-align:left;font:inherit;color:inherit;background:transparent;border:2px solid transparent;border-radius:18px;padding:10px 16px 10px 10px;cursor:pointer}
+  .tabs{position:relative;display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x proximity;padding:4px 2px 8px;margin:0 -22px;padding-inline:22px}
+  .tab{position:relative;flex:0 0 auto;scroll-snap-align:start;display:flex;align-items:center;gap:10px;text-align:left;font:inherit;color:inherit;background:transparent;border:2px solid transparent;border-radius:18px;padding:10px 16px 10px 10px;cursor:pointer}
   .tab .n{flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-family:var(--display);font-size:18px}
-  .tab b{font-weight:600;font-size:16px;line-height:1.25}
+  .tab b{font-weight:700;font-size:16px;line-height:1.25}
   .tab small{display:none;color:var(--muted);font-size:15px}
   .tab[aria-selected="true"]{background:var(--card);border-color:var(--blue)}
   .tab[aria-selected="true"] .n{background:var(--blue);color:#000}
+  /* полоска показывает 5 секунд до следующего шага */
+  .prog{display:none;position:absolute;left:14px;right:14px;bottom:5px;height:3px;border-radius:3px;background:var(--blue);transform:scaleX(0);transform-origin:left}
+  .flow.auto .tab[aria-selected="true"] .prog{display:block;animation:fill 5s linear forwards}
+  .flow.hold .prog{animation-play-state:paused}
+  @keyframes fill{to{transform:scaleX(1)}}
+  @media (hover:hover) and (pointer:fine){.flow.auto:hover .prog{animation-play-state:paused}}
   .panel{display:none;border-radius:26px;padding:20px;min-height:350px;flex-direction:column;justify-content:space-between;gap:16px}
   .panel.on{display:flex;animation:swap 180ms var(--ease)}
   @keyframes swap{from{opacity:0;transform:translateY(8px)}}
   .p1{background:#CFE4FF}.p2{background:#FFE6BF}.p3{background:var(--blue-deep);color:#fff}.p4{background:#CDEEDD}
   .cap{font-size:17px;max-width:26em}
   .mock{background:var(--card);color:var(--ink);border-radius:20px;padding:16px;box-shadow:0 8px 24px rgba(10,22,40,.12);max-width:340px;width:100%;align-self:center;font-size:15px}
-  .mock h4{font-family:var(--display);font-weight:400;font-size:20px;margin-bottom:10px}
+  .mock h4{font-family:var(--display);font-weight:700;font-size:20px;margin-bottom:10px}
   .msg{max-width:84%;padding:9px 13px;border-radius:16px;margin-bottom:8px;line-height:1.35}
   .msg.in{background:var(--bg);border-bottom-left-radius:5px}
   .msg.out{background:var(--blue);color:#000;margin-left:auto;border-bottom-right-radius:5px}
   .checks{list-style:none;padding:0}
   .checks li{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
-  .checks span{color:var(--green);font-weight:600}
+  .checks span{color:var(--green);font-weight:700}
   .checks .bad{color:#C2410C}
   .quote{display:flex;justify-content:space-between;align-items:center;margin:12px 0}
-  .quote b{font-family:var(--display);font-weight:400;font-size:30px}
+  .quote b{font-family:var(--display);font-weight:700;font-size:30px}
   .fake{display:block;text-align:center;background:var(--blue);color:#000;border-radius:999px;padding:10px;font-family:var(--display);font-size:17px}
   .bar{height:10px;border-radius:9px;background:var(--bg2);overflow:hidden;margin:4px 0 14px}
   .bar i{display:block;height:100%;background:var(--blue);border-radius:9px}
@@ -155,7 +147,7 @@
   .tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-content:start}
   .tile{display:flex;flex-direction:column;gap:2px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;text-decoration:none}
   .tile small{color:var(--muted);font-size:14px}
-  .tile b{font-weight:600;overflow-wrap:anywhere}
+  .tile b{font-weight:700;overflow-wrap:anywhere}
   a.tile b{color:var(--blue-deep)}
   .map{position:relative;min-height:280px;border-radius:22px;overflow:hidden;background-color:var(--bg2);
     background-image:linear-gradient(var(--line) 2px,transparent 2px),linear-gradient(90deg,var(--line) 2px,transparent 2px);background-size:64px 64px}
@@ -168,6 +160,9 @@
   /* ===== Панель внизу на телефоне ===== */
   .callbar{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;gap:10px;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:rgba(243,247,252,.96);backdrop-filter:blur(8px);border-top:1px solid var(--line)}
   .callbar .btn{flex:1;padding:12px 10px}
+  /* показываем только после первого экрана */
+  .js .callbar{transform:translateY(100%);visibility:hidden;transition:transform 220ms var(--ease),visibility 0s linear 220ms}
+  .js .callbar.show{transform:none;visibility:visible;transition-delay:0s}
 
   /* ===== Появление при прокрутке: 180 мс, только opacity и transform ===== */
   .js .reveal{opacity:0;transform:translateY(12px);transition:opacity 180ms var(--ease),transform 180ms var(--ease)}
@@ -190,7 +185,7 @@
     .hero{padding:72px 0 88px}
     .hero .wrap{grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
     .actions .btn{flex:0 0 auto}
-    .phone{--w:250px;--h:510px}
+    .stage{height:600px}
     .svc{grid-template-columns:.85fr 1.15fr;gap:64px}
     .flow{grid-template-columns:.85fr 1.15fr;gap:32px;align-items:start}
     .tabs{flex-direction:column;overflow:visible;margin:0;padding:0}
@@ -206,7 +201,9 @@
   /* «Уменьшить анимацию» в системе: без движения, остаётся мягкое появление */
   @media (prefers-reduced-motion:reduce){
     html{scroll-behavior:auto}
-    .phone{animation:none;transform:rotateX(-6deg) rotateY(-25deg)}
+    .prog{display:none!important}
+    .js .callbar{transform:none;opacity:0;transition:opacity 150ms ease,visibility 0s linear 150ms}
+    .js .callbar.show{opacity:1;transition-delay:0s}
     .js .reveal{transform:none;transition:opacity 150ms ease}
     .panel.on{animation:none}
     .btn:active,.tab:active,a.tile:active{transform:none}
@@ -237,37 +234,32 @@
       </div>
 
       <div class="stage" aria-hidden="true">
-        <div class="persp">
-          <div class="phone">
-            <div class="layer" style="--z:-6px"></div><div class="layer" style="--z:-4px"></div><div class="layer" style="--z:-2px"></div>
-            <div class="layer" style="--z:0px"></div><div class="layer" style="--z:2px"></div><div class="layer" style="--z:4px"></div>
-            <div class="back"><div class="cam"><i class="lens l1"></i><i class="lens l2"></i><i class="flash"></i><i class="mic"></i></div><div class="mark">От`ремонтируй</div></div>
-            <div class="front">
-              <div class="screen">
-                <div class="notch"></div>
-                <small>Новый заказ</small>
-                <strong>Замена экрана</strong>
-                <!-- Человек в мультяшном стиле делает заказ -->
-                <svg class="person" viewBox="0 0 160 170" preserveAspectRatio="xMidYMax meet">
-                  <circle cx="80" cy="98" r="62" fill="#fff" opacity=".18"/>
-                  <path d="M22 170c0-34 26-54 58-54s58 20 58 54z" fill="#FFA726"/>
-                  <path d="M62 121q18 14 36 0v9q-18 12-36 0z" fill="#E08A10"/>
-                  <rect x="70" y="100" width="20" height="22" rx="8" fill="#E9A37A"/>
-                  <circle cx="80" cy="76" r="30" fill="#F6C3A0"/>
-                  <path d="M49 74c-3-24 14-40 32-38 19 2 32 16 29 38-9-11-21-16-33-16s-20 5-28 16z" fill="#2B2118"/>
-                  <circle cx="69" cy="80" r="3.6" fill="#0A1628"/><circle cx="91" cy="80" r="3.6" fill="#0A1628"/>
-                  <path d="M70 91q10 9 20 0" fill="none" stroke="#0A1628" stroke-width="3" stroke-linecap="round"/>
-                  <circle cx="61" cy="89" r="4.5" fill="#F29A8A" opacity=".6"/><circle cx="99" cy="89" r="4.5" fill="#F29A8A" opacity=".6"/>
-                  <path d="M128 160c2-24-2-38-12-46" fill="none" stroke="#FFA726" stroke-width="16" stroke-linecap="round"/>
-                  <rect x="104" y="84" width="26" height="42" rx="6" fill="#0A1628" transform="rotate(12 117 105)"/>
-                  <rect x="107" y="88" width="20" height="32" rx="4" fill="#1E90FF" transform="rotate(12 117 105)"/>
-                  <circle cx="115" cy="128" r="7" fill="#F6C3A0"/>
-                  <rect x="100" y="8" width="52" height="30" rx="12" fill="#fff"/><path d="M112 37l-5 10 13-10z" fill="#fff"/>
-                  <path d="M115 23l7 7 12-13" fill="none" stroke="#1FA971" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <div class="task"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>Заказ принят</div>
-              </div>
-            </div>
+        <canvas class="gl" id="phone3d"></canvas>
+        <!-- запасной плоский телефон: виден только если WebGL недоступен; из этого SVG берётся человечек для 3D-экрана -->
+        <div class="flat">
+          <div class="screen">
+            <div class="notch"></div>
+            <small>Новый заказ</small>
+            <strong>Замена экрана</strong>
+            <!-- Человек в мультяшном стиле делает заказ -->
+            <svg class="person" viewBox="0 0 160 170" preserveAspectRatio="xMidYMax meet">
+              <circle cx="80" cy="98" r="62" fill="#fff" opacity=".18"/>
+              <path d="M22 170c0-34 26-54 58-54s58 20 58 54z" fill="#FFA726"/>
+              <path d="M62 121q18 14 36 0v9q-18 12-36 0z" fill="#E08A10"/>
+              <rect x="70" y="100" width="20" height="22" rx="8" fill="#E9A37A"/>
+              <circle cx="80" cy="76" r="30" fill="#F6C3A0"/>
+              <path d="M49 74c-3-24 14-40 32-38 19 2 32 16 29 38-9-11-21-16-33-16s-20 5-28 16z" fill="#2B2118"/>
+              <circle cx="69" cy="80" r="3.6" fill="#0A1628"/><circle cx="91" cy="80" r="3.6" fill="#0A1628"/>
+              <path d="M70 91q10 9 20 0" fill="none" stroke="#0A1628" stroke-width="3" stroke-linecap="round"/>
+              <circle cx="61" cy="89" r="4.5" fill="#F29A8A" opacity=".6"/><circle cx="99" cy="89" r="4.5" fill="#F29A8A" opacity=".6"/>
+              <path d="M128 160c2-24-2-38-12-46" fill="none" stroke="#FFA726" stroke-width="16" stroke-linecap="round"/>
+              <rect x="104" y="84" width="26" height="42" rx="6" fill="#0A1628" transform="rotate(12 117 105)"/>
+              <rect x="107" y="88" width="20" height="32" rx="4" fill="#1E90FF" transform="rotate(12 117 105)"/>
+              <circle cx="115" cy="128" r="7" fill="#F6C3A0"/>
+              <rect x="100" y="8" width="52" height="30" rx="12" fill="#fff"/><path d="M112 37l-5 10 13-10z" fill="#fff"/>
+              <path d="M115 23l7 7 12-13" fill="none" stroke="#1FA971" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div class="task"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>Заказ принят</div>
           </div>
         </div>
         <div class="shadow"></div>
@@ -296,14 +288,14 @@
   <section id="process" class="process">
     <div class="wrap reveal">
       <h2>Как мы работаем</h2>
-      <p class="sub">Нажимайте на шаги и смотрите, как это выглядит для вас.</p>
+      <p class="sub">Шаги переключаются сами. Можно нажать на любой.</p>
       <!-- TODO: подогнать тексты под реальный процесс -->
       <div class="flow">
         <div class="tabs" role="tablist" aria-label="Шаги работы">
-          <button class="tab" role="tab" id="t1" aria-controls="p1" aria-selected="true"><span class="n">1</span><span><b>Вы звоните или пишете</b><small>Опишите, что случилось</small></span></button>
-          <button class="tab" role="tab" id="t2" aria-controls="p2" aria-selected="false" tabindex="-1"><span class="n">2</span><span><b>Диагностика и цена</b><small>Называем стоимость до работы</small></span></button>
-          <button class="tab" role="tab" id="t3" aria-controls="p3" aria-selected="false" tabindex="-1"><span class="n">3</span><span><b>Ремонт</b><small>Чиним после вашего согласия</small></span></button>
-          <button class="tab" role="tab" id="t4" aria-controls="p4" aria-selected="false" tabindex="-1"><span class="n">4</span><span><b>Выдача с гарантией</b><small>Проверяем вместе с вами</small></span></button>
+          <button class="tab" role="tab" id="t1" aria-controls="p1" aria-selected="true"><span class="n">1</span><span><b>Вы звоните или пишете</b><small>Опишите, что случилось</small></span><i class="prog"></i></button>
+          <button class="tab" role="tab" id="t2" aria-controls="p2" aria-selected="false" tabindex="-1"><span class="n">2</span><span><b>Диагностика и цена</b><small>Называем стоимость до работы</small></span><i class="prog"></i></button>
+          <button class="tab" role="tab" id="t3" aria-controls="p3" aria-selected="false" tabindex="-1"><span class="n">3</span><span><b>Ремонт</b><small>Чиним после вашего согласия</small></span><i class="prog"></i></button>
+          <button class="tab" role="tab" id="t4" aria-controls="p4" aria-selected="false" tabindex="-1"><span class="n">4</span><span><b>Выдача с гарантией</b><small>Проверяем вместе с вами</small></span><i class="prog"></i></button>
         </div>
         <div>
           <div class="panel p1 on" id="p1" role="tabpanel" aria-labelledby="t1">
@@ -367,23 +359,229 @@
   <a class="btn" href="https://t.me/username">Telegram</a>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 (function(){
-  var d=document,els=d.querySelectorAll('.reveal');
+  var d=document;
+  var calm=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ===== Появление блоков при прокрутке ===== */
+  var els=d.querySelectorAll('.reveal');
   if('IntersectionObserver' in window){
     var io=new IntersectionObserver(function(l){l.forEach(function(x){if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target)}})},{threshold:.1});
     els.forEach(function(e){io.observe(e)});
-    // телефон крутится только пока виден первый экран
-    var ph=d.querySelector('.phone'),h=d.querySelector('.hero');
-    new IntersectionObserver(function(l){ph.style.animationPlayState=l[0].isIntersecting?'running':'paused'}).observe(h);
   }else{els.forEach(function(e){e.classList.add('in')})}
-  // шаги «Как мы работаем»
-  var tabs=[].slice.call(d.querySelectorAll('.tab')),panels=[].slice.call(d.querySelectorAll('.panel'));
-  function go(i,f){tabs.forEach(function(t,k){var on=k===i;t.setAttribute('aria-selected',on);t.tabIndex=on?0:-1;panels[k].classList.toggle('on',on)});if(f)tabs[i].focus()}
+
+  /* ===== Нижняя панель: появляется, когда первый экран пролистан ===== */
+  var bar=d.querySelector('.callbar'),hero=d.querySelector('.hero');
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(l){
+      var e=l[0];
+      bar.classList.toggle('show',!e.isIntersecting&&e.boundingClientRect.bottom<=0);
+    }).observe(hero);
+  }else{bar.classList.add('show')}
+
+  /* ===== Шаги «Как мы работаем»: сами листаются каждые 5 секунд ===== */
+  var flow=d.querySelector('.flow'),tabs=[].slice.call(d.querySelectorAll('.tab')),panels=[].slice.call(d.querySelectorAll('.panel')),cur=0;
+  function go(i,f){
+    cur=i;
+    tabs.forEach(function(t,k){var on=k===i;t.setAttribute('aria-selected',on);t.tabIndex=on?0:-1;panels[k].classList.toggle('on',on)});
+    if(f)tabs[i].focus();
+    var c=tabs[i].parentNode; // на телефоне шаги идут лентой: подводим активный в центр
+    if(c.scrollWidth>c.clientWidth+2)c.scrollTo({left:tabs[i].offsetLeft-(c.clientWidth-tabs[i].offsetWidth)/2,behavior:calm?'auto':'smooth'});
+  }
+  function stop(){flow.classList.remove('auto')} // человек сам выбрал шаг: дальше не листаем
   tabs.forEach(function(t,i){
-    t.addEventListener('click',function(){go(i)});
-    t.addEventListener('keydown',function(e){var k={ArrowRight:1,ArrowDown:1,ArrowLeft:-1,ArrowUp:-1}[e.key];if(k){e.preventDefault();go((i+k+tabs.length)%tabs.length,true)}});
+    t.addEventListener('click',function(){stop();go(i)});
+    t.addEventListener('keydown',function(e){var k={ArrowRight:1,ArrowDown:1,ArrowLeft:-1,ArrowUp:-1}[e.key];if(k){e.preventDefault();stop();go((i+k+tabs.length)%tabs.length,true)}});
   });
+  if(!calm){
+    flow.classList.add('auto','hold');
+    // таймер — это CSS-анимация полоски (5 с); когда она закончилась, идём дальше
+    flow.addEventListener('animationend',function(e){if(e.animationName==='fill'&&flow.classList.contains('auto'))go((cur+1)%tabs.length)});
+    if('IntersectionObserver' in window){
+      new IntersectionObserver(function(l){flow.classList.toggle('hold',!l[0].isIntersecting)},{threshold:.4}).observe(flow);
+    }else{flow.classList.remove('hold')}
+  }
+
+  /* ===== 3D-телефон (three.js) ===== */
+  var stage=d.querySelector('.stage'),cv=d.getElementById('phone3d'),T=window.THREE,R;
+  if(!T){stage.classList.add('nogl');return}
+  try{R=new T.WebGLRenderer({canvas:cv,antialias:true,alpha:true})}catch(e){stage.classList.add('nogl');return}
+  R.outputEncoding=T.sRGBEncoding;
+  R.setClearColor(0x000000,0);
+
+  var scene=new T.Scene(),cam=new T.PerspectiveCamera(28,1,10,120);
+  var W=7.15,H=14.67,TH=.78,RAD=1,B=.14;           // размеры в см, как у iPhone 14
+  var ANISO=R.capabilities.getMaxAnisotropy();
+  var FONT='"Product Sans","Onest",system-ui,sans-serif';
+
+  // --- вспомогательные функции ---
+  function rr(w,h,r){ // контур скруглённого прямоугольника
+    var s=new T.Shape(),x=-w/2,y=-h/2,P=Math.PI;
+    s.moveTo(x+r,y);s.lineTo(x+w-r,y);s.absarc(x+w-r,y+r,r,-P/2,0,false);
+    s.lineTo(x+w,y+h-r);s.absarc(x+w-r,y+h-r,r,0,P/2,false);
+    s.lineTo(x+r,y+h);s.absarc(x+r,y+h-r,r,P/2,P,false);
+    s.lineTo(x,y+r);s.absarc(x+r,y+r,r,P,P*1.5,false);
+    return s;
+  }
+  function plate(w,h,r){ // плоская пластина с нормальными UV (0..1) для текстур
+    var g=new T.ShapeGeometry(rr(w,h,r),32),p=g.attributes.position,u=g.attributes.uv;
+    for(var i=0;i<p.count;i++)u.setXY(i,p.getX(i)/w+.5,p.getY(i)/h+.5);
+    return g;
+  }
+  function cnv(w,h){var c=d.createElement('canvas');c.width=w;c.height=h;return c}
+  function tex(c){var t=new T.CanvasTexture(c);t.encoding=T.sRGBEncoding;t.anisotropy=ANISO;return t}
+  function cr(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath()}
+
+  // --- «студийное» окружение: из него металл и стекло берут отражения ---
+  function makeEnv(){
+    var c=cnv(1024,512),x=c.getContext('2d'),g=x.createLinearGradient(0,0,0,512);
+    g.addColorStop(0,'#dbe8fb');g.addColorStop(.45,'#7f90a8');g.addColorStop(.55,'#3a4658');g.addColorStop(1,'#10151d');
+    x.fillStyle=g;x.fillRect(0,0,1024,512);
+    function box(u,v,w,h,col,a){x.globalAlpha=a;x.fillStyle=col;x.fillRect(u*1024,v*512,w*1024,h*512)}
+    box(.10,.18,.14,.34,'#ffffff',1);   // большой софтбокс
+    box(.40,.05,.05,.60,'#ffffff',.9);  // вертикальная полоса
+    box(.62,.20,.12,.28,'#ffe3bf',.9);  // тёплый свет
+    box(.84,.15,.08,.40,'#bcd8ff',.9);  // холодный свет
+    box(0,.06,1,.05,'#ffffff',.8);      // верхняя лента
+    x.globalAlpha=1;
+    var t=new T.CanvasTexture(c);t.mapping=T.EquirectangularReflectionMapping;t.encoding=T.sRGBEncoding;
+    return new T.PMREMGenerator(R).fromEquirectangular(t).texture;
+  }
+  scene.environment=makeEnv();
+
+  // --- материалы ---
+  var metal=new T.MeshStandardMaterial({color:0x3b4352,metalness:1,roughness:.34,envMapIntensity:1.4});
+  var metalLight=new T.MeshStandardMaterial({color:0x566074,metalness:1,roughness:.3,envMapIntensity:1.4});
+  var gloss=new T.MeshStandardMaterial({color:0x000000,roughness:.06,metalness:0,envMapIntensity:2.2,transparent:true,blending:T.AdditiveBlending,depthWrite:false}); // только блики стекла
+
+  var sC=cnv(760,1638),bC=cnv(512,1050),sT=tex(sC),bT=tex(bC);
+
+  var rig=new T.Group(),phone=new T.Group();rig.add(phone);scene.add(rig);
+
+  // корпус: алюминиевая рамка со скруглёнными рёбрами
+  var DEP=TH-2*B;
+  var fg=new T.ExtrudeGeometry(rr(W-2*B,H-2*B,RAD-B),{depth:DEP,bevelEnabled:true,bevelThickness:B,bevelSize:B,bevelSegments:8,curveSegments:40});
+  fg.translate(0,0,-DEP/2);
+  phone.add(new T.Mesh(fg,metal));
+
+  var ZF=TH/2+.004,ZB=-TH/2-.004,PW=W-2*B-.02,PH=H-2*B-.02,PR=RAD-B-.01;
+
+  // перед: чёрная рамка, экран, блик стекла
+  var bezel=new T.Mesh(plate(PW,PH,PR),new T.MeshStandardMaterial({color:0x020304,roughness:.35,metalness:.2,envMapIntensity:.6}));
+  bezel.position.z=ZF;phone.add(bezel);
+  var screen=new T.Mesh(plate(PW-.36,PH-.36,PR-.18),new T.MeshBasicMaterial({map:sT,toneMapped:false}));
+  screen.position.z=ZF+.004;phone.add(screen);
+  var glassF=new T.Mesh(plate(PW,PH,PR),gloss);glassF.position.z=ZF+.01;phone.add(glassF);
+
+  // зад: стеклянная крышка с надписью и блик
+  var back=new T.Mesh(plate(PW,PH,PR),new T.MeshPhysicalMaterial({map:bT,roughness:.3,metalness:.15,clearcoat:1,clearcoatRoughness:.06,envMapIntensity:1.1}));
+  back.rotation.y=Math.PI;back.position.z=ZB;phone.add(back);
+  var glassB=new T.Mesh(plate(PW,PH,PR),gloss);glassB.rotation.y=Math.PI;glassB.position.z=ZB-.008;phone.add(glassB);
+
+  // блок камеры: смотрим сзади — он слева сверху (это +x в системе телефона)
+  var CX=W/2-.5-1.65,CY=H/2-.5-1.65,ZL=ZB-.13;
+  var bump=new T.Mesh(new T.ExtrudeGeometry(rr(3.3,3.3,.9),{depth:.1,bevelEnabled:true,bevelThickness:.03,bevelSize:.03,bevelSegments:4,curveSegments:24}),
+    new T.MeshPhysicalMaterial({color:0x2a3243,roughness:.22,metalness:.2,clearcoat:1,clearcoatRoughness:.08,envMapIntensity:1.2}));
+  bump.rotation.y=Math.PI;bump.position.set(CX,CY,ZB);phone.add(bump);
+
+  function cyl(r,h,mat,x,y,z){var m=new T.Mesh(new T.CylinderGeometry(r,r,h,48),mat);m.rotation.x=Math.PI/2;m.position.set(x,y,z);phone.add(m);return m}
+  var ringMat=new T.MeshStandardMaterial({color:0x8b93a0,metalness:1,roughness:.22,envMapIntensity:1.5});
+  var lensMat=new T.MeshPhysicalMaterial({color:0x0b1020,emissive:0x04061a,metalness:.6,roughness:.04,clearcoat:1,clearcoatRoughness:0,envMapIntensity:1.8});
+  function lens(px,py){
+    cyl(.66,.08,ringMat,px,py,ZL-.03);
+    var dome=new T.Mesh(new T.SphereGeometry(.54,48,24),lensMat);dome.scale.set(1,1,.28);dome.position.set(px,py,ZL-.06);phone.add(dome);
+    var ring=new T.Mesh(new T.TorusGeometry(.38,.025,12,48),ringMat);ring.position.set(px,py,ZL-.172);phone.add(ring);
+  }
+  lens(CX+.8,CY+.8);lens(CX-.8,CY-.8);                       // два объектива по диагонали
+  cyl(.29,.06,new T.MeshStandardMaterial({color:0x12151b,metalness:.8,roughness:.4}),CX-.8,CY+.8,ZL-.01);
+  cyl(.25,.05,new T.MeshStandardMaterial({color:0xefe7d2,emissive:0x4a4330,roughness:.5}),CX-.8,CY+.8,ZL-.03); // вспышка
+  cyl(.07,.03,new T.MeshStandardMaterial({color:0x020304,roughness:.6}),CX+.8,CY-.8,ZL-.01);                    // микрофон
+
+  // кнопки на боковых гранях
+  function btn(x,y,len){var m=new T.Mesh(new T.BoxGeometry(.12,len,.34),metalLight);m.position.set(x,y,0);phone.add(m)}
+  btn(-W/2-.005,4.5,.55);btn(-W/2-.005,3.05,1.05);btn(-W/2-.005,1.55,1.05);btn(W/2+.005,2.9,1.75);
+
+  // низ: разъём и динамики
+  var dark=new T.MeshStandardMaterial({color:0x050608,roughness:.7});
+  var port=new T.Mesh(new T.BoxGeometry(.95,.02,.26),dark);port.position.set(0,-H/2,0);phone.add(port);
+  for(var i=0;i<6;i++){[-1,1].forEach(function(sd){var h=new T.Mesh(new T.CylinderGeometry(.05,.05,.02,16),dark);h.position.set(sd*(.9+i*.22),-H/2,0);phone.add(h)})}
+
+  // --- рисуем экран и спину на canvas ---
+  var pimg=null;
+  function art(){
+    var x=sC.getContext('2d');
+    x.setTransform(4,0,0,4,0,0);x.globalAlpha=1;
+    var g=x.createLinearGradient(0,0,0,409.5);g.addColorStop(0,'#3ca3ff');g.addColorStop(.55,'#1E90FF');g.addColorStop(1,'#0f78e8');
+    x.fillStyle=g;x.fillRect(0,0,190,409.5);
+    x.fillStyle='#fff';x.textBaseline='alphabetic';x.textAlign='left';
+    x.font='700 11px '+FONT;x.fillText('9:41',20,21);
+    cr(x,148,12,18,9,2.5);x.fill();
+    x.fillStyle='#000';x.beginPath();x.moveTo(60,0);x.lineTo(130,0);x.arcTo(130,22,118,22,11);x.arcTo(60,22,60,0,11);x.closePath();x.fill(); // чёлка
+    x.fillStyle='#fff';x.globalAlpha=.9;x.font='400 11px '+FONT;x.fillText('Новый заказ',14,56);
+    x.globalAlpha=1;x.font='700 21px '+FONT;x.fillText('Замена экрана',14,80);
+    if(pimg)x.drawImage(pimg,0,96,190,202);
+    x.fillStyle='#fff';cr(x,14,338,162,42,14);x.fill();
+    x.fillStyle='#1FA971';x.beginPath();x.arc(34,359,9,0,Math.PI*2);x.fill();
+    x.strokeStyle='#fff';x.lineWidth=2.2;x.lineCap='round';x.lineJoin='round';x.beginPath();x.moveTo(29.5,359.5);x.lineTo(33,363);x.lineTo(39,355);x.stroke();
+    x.fillStyle='#0A1628';x.font='700 13px '+FONT;x.fillText('Заказ принят',50,364);
+    x.fillStyle='rgba(255,255,255,.75)';cr(x,65,398,60,4,2);x.fill();
+
+    var b=bC.getContext('2d'),bg=b.createLinearGradient(0,0,512,1050);
+    bg.addColorStop(0,'#242c3b');bg.addColorStop(.5,'#161c27');bg.addColorStop(1,'#0e1219');
+    b.fillStyle=bg;b.fillRect(0,0,512,1050);
+    b.fillStyle='rgba(255,255,255,.30)';b.textAlign='center';b.font='700 46px '+FONT;b.fillText('От`ремонтируй',256,570);
+
+    sT.needsUpdate=true;bT.needsUpdate=true;
+    draw();
+  }
+  // человечка берём из того же SVG, что и в запасном плоском телефоне
+  var svg=d.querySelector('.person').cloneNode(true);svg.removeAttribute('class');svg.setAttribute('width',320);svg.setAttribute('height',340);
+  var img=new Image();
+  img.onload=function(){pimg=img;art()};
+  img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(new XMLSerializer().serializeToString(svg));
+  var fl=d.fonts&&d.fonts.load?Promise.all(['700 21px "Product Sans"','400 11px "Product Sans"','700 21px Onest','400 11px Onest'].map(function(f){return d.fonts.load(f,'Новый заказ').catch(function(){})})):Promise.resolve();
+  fl.then(art,art);
+
+  // --- движение: цикл 24 с (лицом, +180°, обратно, пауза, −180°, обратно) ---
+  function ease(v){return -(Math.cos(Math.PI*v)-1)/2}
+  function ang(p){
+    if(p<.04)return 0;
+    if(p<.27)return Math.PI*ease((p-.04)/.23);
+    if(p<.5)return Math.PI*(1-ease((p-.27)/.23));
+    if(p<.54)return 0;
+    if(p<.77)return -Math.PI*ease((p-.54)/.23);
+    return -Math.PI*(1-ease((p-.77)/.23));
+  }
+  var tt=0;
+  function draw(){
+    var a=calm?-.44:ang((tt%24)/24)+Math.sin(tt*.9)*.04;
+    rig.rotation.set(-.1,a,0);
+    rig.position.y=calm?0:Math.sin(tt*1.1)*.15;
+    R.render(scene,cam);
+  }
+  function fit(){
+    var w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;
+    R.setPixelRatio(Math.min(window.devicePixelRatio||1,2));R.setSize(w,h,false);
+    cam.aspect=w/h;
+    var t=Math.tan(T.MathUtils.degToRad(cam.fov/2));
+    cam.position.set(0,0,Math.max((H*1.12/2)/t,(W*1.5/2)/(t*cam.aspect)));
+    cam.lookAt(0,0,0);cam.updateProjectionMatrix();draw();
+  }
+  if('ResizeObserver' in window)new ResizeObserver(fit).observe(stage);else window.addEventListener('resize',fit);
+  fit();
+
+  // крутим только пока виден первый экран и вкладка активна
+  var run=false,last=0,inView=true;
+  function loop(now){if(!run)return;tt+=Math.min((now-last)/1000,.1);last=now;draw();requestAnimationFrame(loop)}
+  function sync(){
+    var on=inView&&!d.hidden&&!calm;
+    if(on&&!run){run=true;last=performance.now();requestAnimationFrame(loop)}else if(!on)run=false;
+  }
+  if('IntersectionObserver' in window)new IntersectionObserver(function(l){inView=l[0].isIntersecting;sync()}).observe(hero);
+  d.addEventListener('visibilitychange',sync);
+  sync();
 })();
 </script>
 </body>
