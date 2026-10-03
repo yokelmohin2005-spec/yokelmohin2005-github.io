@@ -464,7 +464,7 @@
   // --- материалы ---
   var metal=new T.MeshStandardMaterial({color:0x3b4352,metalness:1,roughness:.34,envMapIntensity:1.4});
   var metalLight=new T.MeshStandardMaterial({color:0x566074,metalness:1,roughness:.3,envMapIntensity:1.4});
-  var gloss=new T.MeshStandardMaterial({color:0x000000,roughness:.06,metalness:0,envMapIntensity:2.2,transparent:true,blending:T.AdditiveBlending,depthWrite:false}); // только блики стекла
+  var gloss=new T.MeshStandardMaterial({color:0x000000,roughness:.06,metalness:0,envMapIntensity:.7,transparent:true,blending:T.AdditiveBlending,depthWrite:false}); // только блики стекла
 
   var sC=cnv(760,1638),bC=cnv(512,1050),sT=tex(sC),bT=tex(bC);
 
@@ -529,7 +529,7 @@
     cr(x,148,12,18,9,2.5);x.fill();
     x.fillStyle='#000';x.beginPath();x.moveTo(60,0);x.lineTo(130,0);x.arcTo(130,22,118,22,11);x.arcTo(60,22,60,0,11);x.closePath();x.fill(); // чёлка
     x.fillStyle='#fff';x.globalAlpha=.9;x.font='400 11px '+FONT;x.fillText('Новый заказ',14,56);
-    x.globalAlpha=1;x.font='700 21px '+FONT;x.fillText('Замена экрана',14,80);
+    x.globalAlpha=1;var fs=21;do{x.font='700 '+fs+'px '+FONT;fs--}while(x.measureText('Замена экрана').width>162&&fs>12);x.fillText('Замена экрана',14,80);
     if(pimg)x.drawImage(pimg,-8,92,206,206);
     x.fillStyle='#fff';cr(x,14,338,162,42,14);x.fill();
     x.fillStyle='#1FA971';x.beginPath();x.arc(34,359,9,0,Math.PI*2);x.fill();
